@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,12 @@ namespace CodingTracker
             this.startTime = reader.GetString(reader.GetOrdinal("start_time"));
             this.endTime = reader.GetString(reader.GetOrdinal("end_time"));
             this.duration = reader.GetString(reader.GetOrdinal("duration"));
+        }
+
+        public string GetPretifiedTime(string time)
+        {
+            DateTime parsedDate = DateTime.ParseExact(time, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None);
+            return $"{parsedDate.ToLongTimeString()} - {parsedDate.ToLongDateString()}";
         }
 
         public override string ToString()

@@ -48,14 +48,13 @@ namespace CodingTracker
             {
                 conn.Open();
                 string sql = "CREATE TABLE IF NOT EXISTS tracker (" +
-                     "id INTEGER NOT NULL UNIQUE, " +
-                     "start_time TEXT NOT NULL, " +
-                     "end_time TEXT NOT NULL, " +
-                     "duration TEXT NOT NULL, " +
-                     "PRIMARY KEY(id AUTOINCREMENT));";
+                             "id INTEGER NOT NULL UNIQUE, " +
+                             "start_time TEXT NOT NULL, " +
+                             "end_time TEXT NOT NULL, " +
+                             "duration TEXT NOT NULL, " +
+                             "PRIMARY KEY(id AUTOINCREMENT));";
                 SqliteCommand cmd = new(sql, conn);
                 cmd.ExecuteNonQuery();
-                Console.WriteLine("Successfully connected to database and created the tracker table.");
             }
         }
         public List<CodingSession> GetCodingSessions()
@@ -65,8 +64,6 @@ namespace CodingTracker
                 conn.Open();
                 string sql = "SELECT * FROM TRACKER;";
                 SqliteCommand cmd = new(sql, conn);
-                Console.WriteLine("DAL using this connection: " + conn.ConnectionString);
-                Console.WriteLine("Command using this connection: " + cmd.Connection.ConnectionString);
                 List<CodingSession> sessions = GetQueriedList(cmd, reader => new CodingSession(reader));
                 return sessions;
             }
@@ -96,6 +93,18 @@ namespace CodingTracker
                 AddParameter("@start_time", startTime, cmd);
                 AddParameter("@end_time", endTime, cmd);
                 AddParameter("@duration", duration, cmd);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteEntry(int id)
+        {
+            using (var conn = new SqliteConnection(connectionString))
+            {
+                conn.Open();
+                string sql = "DELETE FROM tracker WHERE id = @id;";
+                SqliteCommand cmd = new SqliteCommand(sql, conn);
+                AddParameter("@id", id, cmd);
                 cmd.ExecuteNonQuery();
             }
         }

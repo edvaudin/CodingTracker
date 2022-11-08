@@ -1,5 +1,7 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using ConsoleTableExt;
+using Microsoft.Data.Sqlite;
 using System.Configuration;
+using System.Globalization;
 
 namespace CodingTracker
 {
@@ -53,22 +55,46 @@ namespace CodingTracker
         {
             List<CodingSession> sessions = dal.GetCodingSessions();
             string output = string.Empty;
+            var tableData = new List<List<object>>();
             foreach (CodingSession codingSession in sessions)
             {
-                output += $"{codingSession}\n";
+                tableData.Add(new List<object> 
+                {   codingSession.id, 
+                    codingSession.duration, 
+                    codingSession.GetPretifiedTime(codingSession.startTime), 
+                    codingSession.GetPretifiedTime(codingSession.endTime) 
+                });
             }
-            Console.WriteLine(output);
+            ConsoleTableBuilder.From(tableData).WithTitle("Your Coding Time").WithColumn("Id", "Duration", "Start Time", "End Time").ExportAndWriteLine();
         }
-
 
         private static void AddEntry()
         {
-            Console.WriteLine("Not implemented");
+            string startTime = InputValidator.GetStartTime();
+            string endTime = InputValidator.GetEndTime(ConvertToDate(startTime));
+            TimeSpan duration = CalculateDuration(startTime, endTime);
+            dal.AddEntry(startTime, endTime, duration.ToString());
+        }
+
+        private static DateTime ConvertToDate(string time)
+        {
+            return DateTime.ParseExact(time, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None);
+        }
+
+        private static TimeSpan CalculateDuration(string startTimeStr, string endTimeStr)
+        {
+            DateTime startTime = ConvertToDate(startTimeStr);
+            DateTime endTime = ConvertToDate(endTimeStr);
+            return endTime.Subtract(startTime);
         }
 
         private static void DeleteEntry()
         {
-            Console.WriteLine("Not implemented");
+            ViewTable();
+            int id = InputValidator.GetIdForRemoval();
+            if (id == -1) { return; }
+            dal.DeleteEntry(id);
+            Console.WriteLine("Successfully delteded entry " + id);
         }
 
         private static void UpdateEntry()
@@ -88,7 +114,6 @@ namespace CodingTracker
             Console.WriteLine("\ta - Add a new entry");
             Console.WriteLine("\td - Delete an entry");
             Console.WriteLine("\tu - Update an entry");
-            Console.WriteLine("\tc - Create new habit");
             Console.WriteLine("\t0 - Quit this application");
             Console.Write("Your option? ");
         }
