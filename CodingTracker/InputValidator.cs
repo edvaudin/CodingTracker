@@ -22,6 +22,19 @@ namespace CodingTracker
             return false;
         }
 
+        public static bool IsValidFilterOption(string? input)
+        {
+            string[] validOptions = { "a", "d", "w", "m", "y" };
+            foreach (string validOption in validOptions)
+            {
+                if (input == validOption)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static string GetStartTime()
         {
             Console.WriteLine($"When did you start coding? Please answer below in the following format: dd-MM-yy HH-mm-ss");
@@ -68,9 +81,27 @@ namespace CodingTracker
                             return result;
                         }
                     }
-                    Console.Write("\nThis is not a valid id, please enter a number: ");
+                    Console.Write("\nThis is not a valid id, please enter a number or to return to main menu type '-1': ");
                 }
             }
+        }
+
+        public static string GetUserFilterChoice()
+        {
+            Console.WriteLine("\nChoose which records you want to view from the following list:");
+            Console.WriteLine("\ta - all");
+            Console.WriteLine("\td - today");
+            Console.WriteLine("\tw - this week");
+            Console.WriteLine("\tm - this month");
+            Console.WriteLine("\ty - this year");
+            Console.Write("Your option? ");
+            string input = Console.ReadLine();
+            while (!IsValidFilterOption(input))
+            {
+                Console.Write("\nThis is not a valid input. Please enter one of the above options: ");
+                input = Console.ReadLine();
+            }
+            return input;
         }
 
         public static string GetUserOption()

@@ -63,7 +63,9 @@ namespace CodingTracker
 
         private static void ViewTable()
         {
+            string filter = InputValidator.GetUserFilterChoice();
             List<CodingSession> sessions = dal.GetCodingSessions();
+            sessions = FilterSessions(sessions, filter);
             var tableData = new List<List<object>>();
             foreach (CodingSession codingSession in sessions)
             {
@@ -75,6 +77,25 @@ namespace CodingTracker
                 });
             }
             ConsoleTableBuilder.From(tableData).WithTitle("Your Coding Time").WithColumn("Id", "Duration", "Start Time", "End Time").ExportAndWriteLine();
+        }
+
+        private static List<CodingSession> FilterSessions(List<CodingSession> allSessions, string filterStr)
+        {
+            switch (filterStr)
+            {
+                case "a":
+                    return allSessions;
+                case "d":
+                    return allSessions.Where(s => ConvertToDate(s.startTime).Day == DateTime.Now.Day).ToList();
+                case "w":
+                    return allSessions.Where(s => ConvertToDate(s.startTime).Day >= DateTime.Now.Day - 7).ToList();
+                case "m":
+                    return allSessions.Where(s => ConvertToDate(s.startTime).Month == DateTime.Now.Month).ToList();
+                case "y":
+                    return allSessions.Where(s => ConvertToDate(s.startTime).Year == DateTime.Now.Year).ToList();
+                default:
+                    return allSessions;
+            }
         }
 
         private static void AddEntry()
