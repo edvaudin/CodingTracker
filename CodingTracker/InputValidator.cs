@@ -11,7 +11,7 @@ namespace CodingTracker
     {
         public static bool IsValidOption(string? input)
         {
-            string[] validOptions = { "v", "a", "d", "u", "0" };
+            string[] validOptions = { "v", "a", "d", "u", "srt", "stp", "0" };
             foreach (string validOption in validOptions)
             {
                 if (input == validOption)
@@ -27,9 +27,9 @@ namespace CodingTracker
             Console.WriteLine($"When did you start coding? Please answer below in the following format: dd-MM-yy HH-mm-ss");
             string input = Console.ReadLine();
            
-            while (!DateTime.TryParseExact(input, "dd-MM-yy hh-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None, out _))
+            while (!DateTime.TryParseExact(input, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None, out _))
             {
-                Console.WriteLine("\n\nInvalid date and time. Use the format: dd-MM-yy HH-mm-ss.");
+                Console.WriteLine("\nInvalid date and time. Use the format: dd-MM-yy HH-mm-ss.");
                 input = Console.ReadLine();
             }
             return input;
@@ -42,12 +42,12 @@ namespace CodingTracker
             
             while (!DateTime.TryParseExact(input, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None, out _))
             {
-                Console.WriteLine("\n\nInvalid date and time. Use the format: dd-MM-yy HH-mm-ss.");
+                Console.WriteLine("\nInvalid date and time. Use the format: dd-MM-yy HH-mm-ss.");
                 input = Console.ReadLine();
             }
             if (DateTime.ParseExact(input, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None) < startTime)
             {
-                Console.WriteLine("\n\nYou cannot have finished coding before you started! Try again.");
+                Console.WriteLine("\nYou cannot have finished coding before you started! Try again.");
                 input = GetEndTime(startTime);
             }
             return input;
@@ -68,7 +68,7 @@ namespace CodingTracker
                             return result;
                         }
                     }
-                    Console.Write("This is not a valid id, please enter a number: ");
+                    Console.Write("\nThis is not a valid id, please enter a number: ");
                 }
             }
         }
@@ -78,7 +78,7 @@ namespace CodingTracker
             string input = Console.ReadLine();
             while (!IsValidOption(input))
             {
-                Console.Write("This is not a valid input. Please enter one of the above options: ");
+                Console.Write("\nThis is not a valid input. Please enter one of the above options: ");
                 input = Console.ReadLine();
             }
             return input;

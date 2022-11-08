@@ -1,6 +1,7 @@
 ﻿using ConsoleTableExt;
 using Microsoft.Data.Sqlite;
 using System.Configuration;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace CodingTracker
@@ -8,6 +9,9 @@ namespace CodingTracker
     class Program
     {
         private static readonly DAL dal = new DAL();
+        private static Stopwatch stopwatch = new Stopwatch();
+        private static DateTime stopwatchStartTime = DateTime.MinValue;
+        private static DateTime stopwatchEndTime = DateTime.MinValue;
         static void Main(string[] args)
         {
             DisplayTitle();
@@ -43,6 +47,12 @@ namespace CodingTracker
                 case "u":
                     UpdateEntry();
                     break;
+                case "srt":
+                    StartStopwatch();
+                    break;
+                case "stp":
+                    StopStopwatch();
+                    break;
                 case "0":
                     ExitApp();
                     break;
@@ -54,7 +64,6 @@ namespace CodingTracker
         private static void ViewTable()
         {
             List<CodingSession> sessions = dal.GetCodingSessions();
-            string output = string.Empty;
             var tableData = new List<List<object>>();
             foreach (CodingSession codingSession in sessions)
             {
@@ -81,6 +90,11 @@ namespace CodingTracker
             return DateTime.ParseExact(time, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None);
         }
 
+        private static string ConvertFromDate(DateTime time)
+        {
+            return time.ToString(@"dd-MM-yy HH-mm-ss");
+        }
+
         private static TimeSpan CalculateDuration(string startTimeStr, string endTimeStr)
         {
             DateTime startTime = ConvertToDate(startTimeStr);
@@ -94,12 +108,35 @@ namespace CodingTracker
             int id = InputValidator.GetIdForRemoval();
             if (id == -1) { return; }
             dal.DeleteEntry(id);
-            Console.WriteLine("Successfully delteded entry " + id);
+            Console.WriteLine("\nSuccessfully delteded entry " + id);
         }
 
         private static void UpdateEntry()
         {
             Console.WriteLine("Not implemented");
+        }
+
+        private static void StartStopwatch()
+        {
+            Console.WriteLine("\nWe've started a stopwatch - get coding!");
+            stopwatch.Start();
+            stopwatchStartTime = DateTime.Now;
+        }
+
+        private static void StopStopwatch()
+        {
+            if (stopwatch != null)
+            {
+                stopwatch.Stop();
+                stopwatchEndTime = DateTime.Now;
+                TimeSpan duration = stopwatch.Elapsed;
+                dal.AddEntry(ConvertFromDate(stopwatchStartTime), ConvertFromDate(stopwatchEndTime), duration.ToString());
+                Console.WriteLine("Stopwatch time recorded");
+            }
+            else
+            {
+                Console.WriteLine("\nNo stopwatch is running.");
+            }
         }
 
         private static void ExitApp()
@@ -114,6 +151,8 @@ namespace CodingTracker
             Console.WriteLine("\ta - Add a new entry");
             Console.WriteLine("\td - Delete an entry");
             Console.WriteLine("\tu - Update an entry");
+            Console.WriteLine("\tsrt - Start stopwatch");
+            Console.WriteLine("\tstp - Stop stopwatch");
             Console.WriteLine("\t0 - Quit this application");
             Console.Write("Your option? ");
         }
