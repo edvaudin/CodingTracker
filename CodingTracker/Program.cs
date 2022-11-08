@@ -5,6 +5,7 @@ namespace CodingTracker
 {
     class Program
     {
+        private static readonly DAL dal = new DAL();
         static void Main(string[] args)
         {
             DisplayTitle();
@@ -20,7 +21,7 @@ namespace CodingTracker
 
         private static void InitializeDatabase()
         {
-            using DAL dal = new();
+            DAL dal = new();
             dal.InitializeDatabase();
         }
 
@@ -50,7 +51,6 @@ namespace CodingTracker
 
         private static void ViewTable()
         {
-            using DAL dal = new();
             List<CodingSession> sessions = dal.GetCodingSessions();
             string output = string.Empty;
             foreach (CodingSession codingSession in sessions)
