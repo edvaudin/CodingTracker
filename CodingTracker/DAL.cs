@@ -108,6 +108,20 @@ namespace CodingTracker
                 cmd.ExecuteNonQuery();
             }
         }
+        public void UpdateEntry(int id, string startTime, string endTime, string duration)
+        {
+            using (var conn = new SqliteConnection(connectionString))
+            {
+                conn.Open();
+                string sql = "UPDATE tracker SET start_time = @start_time, end_time = @end_time, duration = @duration WHERE id = @id;";
+                SqliteCommand cmd = new SqliteCommand(sql, conn);
+                AddParameter("@id", id, cmd);
+                AddParameter("@start_time", startTime, cmd);
+                AddParameter("@end_time", endTime, cmd);
+                AddParameter("@duration", duration, cmd);
+                cmd.ExecuteNonQuery();
+            }
+        }
 
         protected static void AddParameter<T>(string name, T value, SqliteCommand cmd)
         {

@@ -36,7 +36,7 @@ namespace CodingTracker
             switch (userInput)
             {
                 case "v":
-                    ViewTable();
+                    ViewTableFiltered();
                     break;
                 case "a":
                     AddEntry();
@@ -61,19 +61,24 @@ namespace CodingTracker
             }
         }
 
-        private static void ViewTable()
+        private static void ViewTableFiltered()
         {
             string filter = InputValidator.GetUserFilterChoice();
             List<CodingSession> sessions = dal.GetCodingSessions();
             sessions = FilterSessions(sessions, filter);
+            ViewTable(sessions);
+        }
+
+        private static void ViewTable(List<CodingSession> sessions)
+        {
             var tableData = new List<List<object>>();
             foreach (CodingSession codingSession in sessions)
             {
-                tableData.Add(new List<object> 
-                {   codingSession.id, 
-                    codingSession.duration, 
-                    codingSession.GetPretifiedTime(codingSession.startTime), 
-                    codingSession.GetPretifiedTime(codingSession.endTime) 
+                tableData.Add(new List<object>
+                {   codingSession.id,
+                    codingSession.duration,
+                    codingSession.GetPretifiedTime(codingSession.startTime),
+                    codingSession.GetPretifiedTime(codingSession.endTime)
                 });
             }
             ConsoleTableBuilder.From(tableData).WithTitle("Your Coding Time").WithColumn("Id", "Duration", "Start Time", "End Time").ExportAndWriteLine();
@@ -81,21 +86,15 @@ namespace CodingTracker
 
         private static List<CodingSession> FilterSessions(List<CodingSession> allSessions, string filterStr)
         {
-            switch (filterStr)
+            return filterStr switch
             {
-                case "a":
-                    return allSessions;
-                case "d":
-                    return allSessions.Where(s => ConvertToDate(s.startTime).Day == DateTime.Now.Day).ToList();
-                case "w":
-                    return allSessions.Where(s => ConvertToDate(s.startTime).Day >= DateTime.Now.Day - 7).ToList();
-                case "m":
-                    return allSessions.Where(s => ConvertToDate(s.startTime).Month == DateTime.Now.Month).ToList();
-                case "y":
-                    return allSessions.Where(s => ConvertToDate(s.startTime).Year == DateTime.Now.Year).ToList();
-                default:
-                    return allSessions;
-            }
+                "a" => allSessions,
+                "d" => allSessions.Where(s => ConvertToDate(s.startTime).Day == DateTime.Now.Day).ToList(),
+                "w" => allSessions.Where(s => ConvertToDate(s.startTime).Day >= DateTime.Now.Day - 7).ToList(),
+                "m" => allSessions.Where(s => ConvertToDate(s.startTime).Month == DateTime.Now.Month).ToList(),
+                "y" => allSessions.Where(s => ConvertToDate(s.startTime).Year == DateTime.Now.Year).ToList(),
+                _ => allSessions,
+            };
         }
 
         private static void AddEntry()
@@ -104,6 +103,25 @@ namespace CodingTracker
             string endTime = InputValidator.GetEndTime(ConvertToDate(startTime));
             TimeSpan duration = CalculateDuration(startTime, endTime);
             dal.AddEntry(startTime, endTime, duration.ToString());
+        }
+
+        private static void DeleteEntry()
+        {
+            ViewTableFiltered();
+            int id = InputValidator.GetIdForUpdate("remove");
+            if (id == -1) { return; }
+            dal.DeleteEntry(id);
+            Console.WriteLine("\nSuccessfully delteded entry " + id);
+        }
+
+        private static void UpdateEntry()
+        {
+            ViewTable(dal.GetCodingSessions());
+            int id = InputValidator.GetIdForUpdate("update");
+            string startTime = InputValidator.GetStartTime();
+            string endTime = InputValidator.GetEndTime(ConvertToDate(startTime));
+            TimeSpan duration = CalculateDuration(startTime, endTime);
+            dal.UpdateEntry(id, startTime, endTime, duration.ToString());
         }
 
         private static DateTime ConvertToDate(string time)
@@ -121,20 +139,6 @@ namespace CodingTracker
             DateTime startTime = ConvertToDate(startTimeStr);
             DateTime endTime = ConvertToDate(endTimeStr);
             return endTime.Subtract(startTime);
-        }
-
-        private static void DeleteEntry()
-        {
-            ViewTable();
-            int id = InputValidator.GetIdForRemoval();
-            if (id == -1) { return; }
-            dal.DeleteEntry(id);
-            Console.WriteLine("\nSuccessfully delteded entry " + id);
-        }
-
-        private static void UpdateEntry()
-        {
-            Console.WriteLine("Not implemented");
         }
 
         private static void StartStopwatch()

@@ -27,8 +27,15 @@ namespace CodingTracker
 
         public string GetPretifiedTime(string time)
         {
-            DateTime parsedDate = DateTime.ParseExact(time, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None);
-            return $"{parsedDate.ToLongTimeString()} - {parsedDate.ToLongDateString()}";
+            if (DateTime.TryParseExact(time, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None, out DateTime parsedDate))
+            {
+                return $"{parsedDate.ToLongTimeString()} - {parsedDate.ToLongDateString()}";
+            }
+            else
+            {
+                return $"{time}";
+            }
+            
         }
 
         public override string ToString()

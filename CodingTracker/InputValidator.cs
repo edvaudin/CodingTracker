@@ -66,9 +66,9 @@ namespace CodingTracker
             return input;
         }
 
-        public static int GetIdForRemoval()
+        public static int GetIdForUpdate(string verb)
         {
-            Console.Write("Which entry do you want to remove? ");
+            Console.Write($"Which entry do you want to {verb}? ");
             DAL dal = new DAL();
             {
                 List<int> validIds = dal.GetCodingSessions().Select(o => o.id).ToList();
