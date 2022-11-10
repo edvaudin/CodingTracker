@@ -14,13 +14,13 @@ namespace CodingTracker
         private static DateTime stopwatchEndTime = DateTime.MinValue;
         static void Main(string[] args)
         {
-            DisplayTitle();
+            Viewer.DisplayTitle();
             InitializeDatabase();
 
             while (true)
             {
-                DisplayOptionsMenu();
-                string userInput = InputValidator.GetUserOption();
+                Viewer.DisplayOptionsMenu();
+                string userInput = UserInput.GetUserOption();
                 ProcessInput(userInput);
             }
         }
@@ -63,7 +63,8 @@ namespace CodingTracker
 
         private static void ViewTableFiltered()
         {
-            string filter = InputValidator.GetUserFilterChoice();
+            Viewer.DisplayFilterOptionsMenu();
+            string filter = UserInput.GetUserFilterChoice();
             List<CodingSession> sessions = dal.GetCodingSessions();
             sessions = FilterSessions(sessions, filter);
             ViewTable(sessions);
@@ -89,26 +90,29 @@ namespace CodingTracker
             return filterStr switch
             {
                 "a" => allSessions,
-                "d" => allSessions.Where(s => ConvertToDate(s.startTime).Day == DateTime.Now.Day).ToList(),
-                "w" => allSessions.Where(s => ConvertToDate(s.startTime).Day >= DateTime.Now.Day - 7).ToList(),
-                "m" => allSessions.Where(s => ConvertToDate(s.startTime).Month == DateTime.Now.Month).ToList(),
-                "y" => allSessions.Where(s => ConvertToDate(s.startTime).Year == DateTime.Now.Year).ToList(),
+                "d" => allSessions.Where(s => Validator.ConvertToDate(s.startTime).Day == DateTime.Now.Day).ToList(),
+                "w" => allSessions.Where(s => Validator.ConvertToDate(s.startTime).Day >= DateTime.Now.Day - 7).ToList(),
+                "m" => allSessions.Where(s => Validator.ConvertToDate(s.startTime).Month == DateTime.Now.Month).ToList(),
+                "y" => allSessions.Where(s => Validator.ConvertToDate(s.startTime).Year == DateTime.Now.Year).ToList(),
                 _ => allSessions,
             };
         }
 
         private static void AddEntry()
         {
-            string startTime = InputValidator.GetStartTime();
-            string endTime = InputValidator.GetEndTime(ConvertToDate(startTime));
-            TimeSpan duration = CalculateDuration(startTime, endTime);
+            Viewer.DisplayPromptForTime("start");
+            string startTime = UserInput.GetStartTime();
+            Viewer.DisplayPromptForTime("finish");
+            string endTime = UserInput.GetEndTime(Validator.ConvertToDate(startTime));
+            TimeSpan duration = Validator.CalculateDuration(startTime, endTime);
             dal.AddEntry(startTime, endTime, duration.ToString());
         }
 
         private static void DeleteEntry()
         {
             ViewTableFiltered();
-            int id = InputValidator.GetIdForUpdate("remove");
+            Console.Write($"Which entry do you want to remove? ");
+            int id = UserInput.GetIdForUpdate();
             if (id == -1) { return; }
             dal.DeleteEntry(id);
             Console.WriteLine("\nSuccessfully delteded entry " + id);
@@ -117,28 +121,14 @@ namespace CodingTracker
         private static void UpdateEntry()
         {
             ViewTable(dal.GetCodingSessions());
-            int id = InputValidator.GetIdForUpdate("update");
-            string startTime = InputValidator.GetStartTime();
-            string endTime = InputValidator.GetEndTime(ConvertToDate(startTime));
-            TimeSpan duration = CalculateDuration(startTime, endTime);
+            Console.Write($"Which entry do you want to update? ");
+            int id = UserInput.GetIdForUpdate();
+            Viewer.DisplayPromptForTime("start");
+            string startTime = UserInput.GetStartTime();
+            Viewer.DisplayPromptForTime("finish");
+            string endTime = UserInput.GetEndTime(Validator.ConvertToDate(startTime));
+            TimeSpan duration = Validator.CalculateDuration(startTime, endTime);
             dal.UpdateEntry(id, startTime, endTime, duration.ToString());
-        }
-
-        private static DateTime ConvertToDate(string time)
-        {
-            return DateTime.ParseExact(time, "dd-MM-yy HH-mm-ss", new CultureInfo("en-US"), DateTimeStyles.None);
-        }
-
-        private static string ConvertFromDate(DateTime time)
-        {
-            return time.ToString(@"dd-MM-yy HH-mm-ss");
-        }
-
-        private static TimeSpan CalculateDuration(string startTimeStr, string endTimeStr)
-        {
-            DateTime startTime = ConvertToDate(startTimeStr);
-            DateTime endTime = ConvertToDate(endTimeStr);
-            return endTime.Subtract(startTime);
         }
 
         private static void StartStopwatch()
@@ -155,7 +145,7 @@ namespace CodingTracker
                 stopwatch.Stop();
                 stopwatchEndTime = DateTime.Now;
                 TimeSpan duration = stopwatch.Elapsed;
-                dal.AddEntry(ConvertFromDate(stopwatchStartTime), ConvertFromDate(stopwatchEndTime), duration.ToString());
+                dal.AddEntry(Validator.ConvertFromDate(stopwatchStartTime), Validator.ConvertFromDate(stopwatchEndTime), duration.ToString());
                 Console.WriteLine("Stopwatch time recorded");
             }
             else
@@ -167,25 +157,6 @@ namespace CodingTracker
         private static void ExitApp()
         {
             Environment.Exit(0);
-        }
-
-        private static void DisplayOptionsMenu()
-        {
-            Console.WriteLine("\nChoose an action from the following list:");
-            Console.WriteLine("\tv - View your tracker");
-            Console.WriteLine("\ta - Add a new entry");
-            Console.WriteLine("\td - Delete an entry");
-            Console.WriteLine("\tu - Update an entry");
-            Console.WriteLine("\tsrt - Start stopwatch");
-            Console.WriteLine("\tstp - Stop stopwatch");
-            Console.WriteLine("\t0 - Quit this application");
-            Console.Write("Your option? ");
-        }
-
-        private static void DisplayTitle()
-        {
-            Console.WriteLine("Coding Tracker\r");
-            Console.WriteLine("-------------\n");
         }
     }
 }
