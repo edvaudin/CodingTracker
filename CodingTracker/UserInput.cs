@@ -55,6 +55,7 @@ namespace CodingTracker
                 }
                 Console.Write("\nThis is not a valid id, please enter a number or to return to main menu type '-1': ");
             }
+            return -1;
         }
 
         public static string GetUserFilterChoice()

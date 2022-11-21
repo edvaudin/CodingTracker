@@ -1,25 +1,24 @@
-﻿using ConsoleTableExt;
-using Microsoft.Data.Sqlite;
-using System.Configuration;
-using System.Diagnostics;
-using System.Globalization;
+﻿namespace CodingTracker;
 
-namespace CodingTracker
+class Program
 {
-    class Program
+    static bool endApp = false;
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            Viewer.DisplayTitle();
-            UserController.InitializeDatabase();
+        Viewer.DisplayTitle();
+        UserController.InitializeDatabase();
 
-            while (true)
-            {
-                Viewer.DisplayOptionsMenu();
-                string userInput = UserInput.GetUserOption();
-                UserController.ProcessInput(userInput);
-            }
+        while (!endApp)
+        {
+            Viewer.DisplayOptionsMenu();
+            string userInput = UserInput.GetUserOption();
+            UserController.ProcessInput(userInput);
         }
+        ExitApp();
     }
+
+    public static void SetEndAppToTrue() => endApp = true;
+
+    private static void ExitApp() => Environment.Exit(0);
 }
 

@@ -37,7 +37,7 @@ internal static class UserController
                 StopStopwatch();
                 break;
             case "0":
-                ExitApp();
+                Program.SetEndAppToTrue();
                 break;
             default:
                 break;
@@ -109,8 +109,5 @@ internal static class UserController
         dal.UpdateEntry(id, startTime, endTime, duration.ToString());
     }
 
-    private static void ExitApp()
-    {
-        Environment.Exit(0);
-    }
+
 }
