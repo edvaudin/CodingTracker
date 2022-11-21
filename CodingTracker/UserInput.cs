@@ -40,20 +40,21 @@ namespace CodingTracker
 
         public static int GetIdForUpdate()
         {
-            DAL dal = new DAL();
-            List<int> validIds = dal.GetCodingSessions().Select(o => o.id).ToList();
-            while (true)
+            DataAccessor dal = new DataAccessor();
+            List<int> validIds = dal.GetCodingSessions().Select(o => o.Id).ToList();
+            bool validIdEntered = false;
+            while (!validIdEntered)
             {
-                if (Int32.TryParse(Console.ReadLine(), out int result))
+                if (int.TryParse(Console.ReadLine(), out int result))
                 {
                     if (validIds.Contains(result) || result == -1)
                     {
+                        validIdEntered = true;
                         return result;
                     }
                 }
                 Console.Write("\nThis is not a valid id, please enter a number or to return to main menu type '-1': ");
             }
-
         }
 
         public static string GetUserFilterChoice()

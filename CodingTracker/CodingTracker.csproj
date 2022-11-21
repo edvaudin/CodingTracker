@@ -9,7 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="ConsoleTableExt" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0-rc.2.22472.11" />
+    <PackageReference Include="MapDataReader" Version="1.0.6" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
 
